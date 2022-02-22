@@ -1,0 +1,103 @@
+#----------------------------------------------------------------------
+#
+#   Copyright 1993 - 2020, Bentley Systems, Inc.
+#
+#   All rights reserved.
+#
+#   Limited permission is hereby granted to reproduce and modify this
+#   copyrighted material provided that the resulting code is used only in
+#   conjunction with Bentley Systems products under the terms of the
+#   license agreement provided therein, and that this notice is retained
+#   in its entirety in any such reproduction or modification.
+#
+#----------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------
+#
+#    $RCSfile: CppDbApiIntro.mke,v $
+#   $Revision: 1.1 $
+#       $Date: 2020/02/10 14:20:05 $
+#
+#  $Copyright: (c) 2020 Bentley Systems, Incorporated. All rights reserved. $
+#
+#--------------------------------------------------------------------------------------
+
+PolicyFile = MicroStationPolicy.mki
+DEFAULT_TARGET_PROCESSOR_ARCHITECTURE=x64
+MDLMKI = $(MSMDE)mki/
+mdlLibs = $(MSMDE)library/
+dirToSearch = $(MDLMKI)
+genSrc = $(o)
+%include $(MDLMKI)mdl.mki
+%include $(MDLMKI)cincapnd.mki
+
+# EE++
+mdlapps  = d:/dev/mdlapps/
+
+appName    = CppDbApiIntro
+sAppName   = CppDbApiIntro
+
+langSpec   = $(baseDir)transkit/
+
+appRscs = \
+   $(rscObjects)$(sAppName)cmd.rsc
+
+#----------------------------------------------------------
+# Create needed output directories in case they don't exist
+#----------------------------------------------------------
+always:
+    !~@mkdir $(o)
+    !~@mkdir  $(rscObjects)
+    !~@mkdir $(reqdObjs)
+
+$(genSrc)$(sAppName)cmd.h : $(baseDir)$(sAppName)cmd.r
+
+$(rscObjects)$(sAppName)cmd.rsc : $(baseDir)$(sAppName)cmd.r
+
+
+
+#------------------------------------------------
+#   Set up to use linkLibrary.mki (legacy: dlmcomp.mki and dlmlink.mki)
+#------------------------------------------------
+dlmObjs = \
+    $(o)$(appName)$(oext)
+
+DLM_NAME                = $(appName)
+DLM_DEST                = $(mdlapps)
+DLM_OBJECT_FILES        = $(dlmObjs)
+DLM_OBJECT_DEST         = $(o)
+DLM_SPECIAL_LINKOPT     = -fixed:no		# Notify linker this library does not require a fixed base address to load
+DLM_NO_DLS              = 1                     # USE DLLEXPORT IN .CPP
+DLM_NO_DEF              = 1
+DLM_NOENTRY             = 1
+DLM_NO_MANIFEST         = 1                     # If not set linker embeds your current (developer) patched MSVCRT version manifest in output dll.  This is not desirable and produces side-by-side CLIENT ERROR: 14001)
+DLM_NO_SIGN             = 1                     # If not set and no certificate found, ERROR: 'singleton' is not recognized as an internal or external command
+LINKER_LIBRARIES        = $(mdlLibs)bentley.lib \
+                          $(mdlLibs)mdlbltin.lib \
+                          $(mdlLibs)BentleyGeom.lib \
+                          $(mdlLibs)DgnPlatform.lib \
+                          $(mdlLibs)dgnview.lib \
+                          $(mdlLibs)RmgrTools.lib \
+                          $(mdlLibs)BentleyAllocator.lib
+
+#----------------------------------------------------------------------
+#   Compile the source files for the DLM
+#----------------------------------------------------------------------
+
+$(o)$(appName)$(oext)           : $(baseDir)$(appName).cpp $(genSrc)$(sAppName)cmd.h $(baseDir)$(sAppName)id.h
+
+%include $(MDLMKI)dlmlink.mki
+
+$(reqdObjs)$(appName).mi                : $(appRscs)
+    $(msg)
+    > $(o)make.opt
+    -o$@
+    $(appRscs)
+    <
+    $(RLibCmd) @$(o)make.opt
+        ~time
+
+#---------------------------------------------
+#   Include language specific build steps
+#---------------------------------------------
+%include $(baseDir)$(sAppName)rsc.mki

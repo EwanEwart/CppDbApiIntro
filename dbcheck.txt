@@ -1,0 +1,7 @@
+DATABASE LINKAGES IN FILE: D:\dev\CppDbApiIntro\3D.Metric.Design.Empty.dgn
+
+Elm Id         Database Type  Entity         Mslink         Level          Link Type      DAS Type       Orphan         Model Id
+--------------------------------------------------------------------------------------------------------------------------------
+1202,          ODBC,          1,             1,             Default,       New/Duplicate, 0,             Not Verified,  3D Metric Design
+1203,          ODBC,          1,             2,             Default,       New/Duplicate, 0,             Not Verified,  3D Metric Design
+1204,          ODBC,          1,             3,             Default,       New/Duplicate, 0,             Not Verified,  3D Metric Design
